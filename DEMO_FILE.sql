@@ -53,7 +53,7 @@ SELECT * FROM STUDENT WHERE AGE > (SELECT AVG(AGE) FROM  STUDENT);  #SELECT STUD
 SELECT * FROM STUDENT WHERE AGE<>26;  #NOT OPERATOR
 SELECT * FROM STUDENT WHERE AGE!=26;  #NOT OPERATOR
 
-SELECT NAME+'-'+CITY AS NICKS FROM STUDENT; # I THINK FOR CONCAT IT SHOULD BE IN TEXT DATA TYPE FROMAT
+SELECT NAME+'-'+CITY AS NICKS FROM STUDENT; # [WRONG:I THINK FOR CONCAT IT SHOULD BE IN TEXT DATA TYPE FROMAT] use CONCAT(NAME,'-',CITY)
 
 SELECT * FROM STUDENT WHERE NAME LIKE '_AJ%';
 SELECT * FROM STUDENT WHERE NAME NOT LIKE '_AJ%';
@@ -78,7 +78,7 @@ SELECT AGE,COUNT(ID) AS TOTAL FROM STUDENT GROUP BY AGE HAVING TOTAL>1;
 
 SELECT AGE FROM STUDENT ORDER BY AGE;
 SELECT DISTINCT AGE FROM STUDENT ORDER BY AGE;
-SELECT COUNT(DISTINCT AGE ) AS TOTAL_AGE_COUNT FROM STUDENT ORDER BY AGE;
+SELECT COUNT(DISTINCT AGE ) AS TOTAL_AGE_COUNT FROM STUDENT ORDER BY AGE; #need to check no need for oreder by age here#
 
 SELECT SUM(AGE) FROM STUDENT;
 SELECT MAX(AGE) FROM STUDENT;
@@ -126,7 +126,7 @@ SELECT * FROM ATTENDANCE WHERE ID=3;
 SELECT DISTINCT ID FROM ATTENDANCE;
 
 SELECT ID,COUNT(IF(ASTATUS='P',1,NULL)) AS PRESENTED_COUNT FROM ATTENDANCE GROUP BY ID;
-SELECT ID,COUNT(IF(ASTATUS='F',1,NULL)) AS PRESENTED_COUNT FROM ATTENDANCE GROUP BY ID;
+SELECT ID,COUNT(IF(ASTATUS='F',1,NULL)) AS NOT_PRESENTED_COUNT FROM ATTENDANCE GROUP BY ID;
 
 #JOIN QUERY:
 CREATE TABLE EMP (
@@ -205,7 +205,7 @@ SELECT
     SUM(order_items.quantity * order_items.price) AS total_price
 FROM
     orders
-JOIN
+JOIN      # JOIN == INNER JOIN
     order_items ON orders.order_id = order_items.order_id
 GROUP BY
     orders.order_id, orders.customer_name, orders.order_date;
@@ -227,7 +227,7 @@ GROUP BY
 /*This query only groups the results by orders.order_id.
 As a result, the aggregation functions (SUM) will be calculated only for each unique order_id, regardless of the customer_name or order_date.*/
 #SUMMARY:
-/*In summary, the first two queries provide more detailed grouping by including customer_name and order_date, while the third query groups the results at a higher level, considering only the order_id.*/
+/*In summary, the first  query provide more detailed grouping by including customer_name and order_date, while the last query groups the results at a higher level, considering only the order_id.*/
 #-----------------------------------------------------------------------------------------------------------------------------#
 #------------------------------------------------TUTUORIAL-2 START--------------------------------------------------------------#
 CREATE TABLE STUDENT_2(
@@ -386,19 +386,19 @@ INSERT INTO SALARY_RL (E_ID,SALARY) VALUES (15,10000);  # ERROR BECOZ FOREIGN KE
 														# FOREIGN KEY CAN ACCEPT NULL VALUES
 INSERT INTO SALARY_RL (E_ID,SALARY) VALUES (1,10000000),(2,2000000),(3,300000),(4,40000),(5,5000),(6,600);
 
-#UNIQUE ,CHECK, DEFAULT 
+#UNIQUE ,CHECK(), DEFAULT 
 CREATE TABLE RL_COMPANY(ID INT PRIMARY KEY AUTO_INCREMENT,DEPARTMENT VARCHAR(25)NOT NULL UNIQUE,NO_OF_EMPLOYEES INT NOT NULL CHECK (NO_OF_EMPLOYEES<1000),LOCATION VARCHAR(25) DEFAULT 'CHENNAI' );
 INSERT INTO RL_COMPANY(DEPARTMENT,NO_OF_EMPLOYEES,LOCATION) VALUES ('IT',1000,'BGR'); #Error Code: 3819. Check constraint 'rl_company_chk_1' is violated.
 INSERT INTO RL_COMPANY(DEPARTMENT,NO_OF_EMPLOYEES,LOCATION) VALUES ('IT',900,'BGR'),('IT',800,'HYD');#Error Code: 1062. Duplicate entry 'IT' for key 'rl_company.DEPARTMENT'
 INSERT INTO RL_COMPANY(DEPARTMENT,NO_OF_EMPLOYEES,LOCATION) VALUES ('IT_DEVELOP',900,'BGR'),('IT_TESTING',600,'HYD'); 
-INSERT INTO RL_COMPANY(DEPARTMENT,NO_OF_EMPLOYEES) VALUES ('VENDOR',900),('MAINTANENCE',600); #DEFAULT WILL UPDATE
+INSERT INTO RL_COMPANY(DEPARTMENT,NO_OF_EMPLOYEES) VALUES ('VENDOR',900),('MAINTANENCE',600); #DEFAULT LOCATION WILL UPDATE
 
 
 SELECT * FROM EMP_RL;
 SELECT * FROM SALARY_RL;
 SELECT * FROM RL_COMPANY;
 
-#JOIN BY "USING" KEYWORD
+#JOIN BY "USING()" KEYWORD
 SELECT E.E_ID,E.E_NAME,S.SALARY FROM EMP_RL E LEFT JOIN SALARY_RL S ON E.E_ID=S.E_ID;
 SELECT E.E_ID,E.E_NAME,S.SALARY FROM EMP_RL E LEFT JOIN SALARY_RL S USING (E_ID); # ONLY IF THE NAME IS COMMON ONLY
 #SELF JOIN [TASK_1 is to get the employee name with his/her manager name.]
@@ -501,5 +501,25 @@ SELECT @AMOUNT,@DATEUH ;
 
 # USER DEFINED FUNCTIONS:
 #User-defined functions can be written in C/C++ and then loaded into MySQL for use within SQL statements
+
+# STORED PROCEDURE VS FUNCTIONS [REFER SQL NOTES]
+
+#-------------------------------------------------------------------------------------------------------------------------------------#
+#WINDOW FUNCTION[analytic function]
+-- SELECT 
+--     column1,
+--     column2,
+--     window_function(column3) OVER (PARTITION BY partition_column ORDER BY order_column)  
+-- FROM
+--     your_table;
+
+-- PARTITION BY divides the result set into partitions, and the function is applied separately to each partition.
+-- ORDER BY specifies the order of rows within each partition. This is optional but important for certain functions like ROW_NUMBER() or RANK()
+-- 1.ROW_NUMBER(): Assigns a unique sequential integer to each row within a partition.
+-- 2.RANK(), DENSE_RANK(): Assigns a rank to each row within a partition based on some ordering criteria.
+-- 3.SUM(), AVG(), MIN(), MAX(): Calculate aggregate values over a window.
+-- 4.LEAD(), LAG(): Access data from subsequent or preceding rows within the partition.
+-- 5.NTILE(): Divides the result set into a specified number of quantiles.
+#-------------------------------------------------------------------------------------------------------------------------------------#
 
 #------------------------------------------------------------------ END -------------------------------------------------------------#
